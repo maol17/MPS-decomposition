@@ -24,13 +24,13 @@ function get_entropy(P::Array)
     S = []
     P = reshape(P, 2, :)
     F = svd(P)
-    push!(S, sum(((F.S).^2).*log.((F.S).^2)))
+    push!(S, -sum(((F.S).^2).*log.((F.S).^2)))
     P = Diagonal(F.S)*F.Vt
     d = 2*size(F.U,2)
     for i in 2:D-1
         P = reshape(P, d, :)
         F = svd(P)
-        push!(S, sum(F.S.*log.(F.S)))
+        push!(S, -sum(F.S.*log.(F.S)))
         P = Diagonal(F.S)*F.Vt
         d = 2*size(F.U,2)
     end

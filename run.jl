@@ -4,6 +4,10 @@ using Main.MPS
 using Main.ThermalVQE:hamiltonian, TFIM
 using Yao
 using YaoExtensions
+using LinearAlgebra
+using PyCall
+using PyPlot
+
 
 function ising_decomposition(nx::Int, ny::Int,β::Real, Γ::Real)
     H = hamiltonian(TFIM(nx, ny; Γ=Γ, periodic=false))
@@ -14,11 +18,26 @@ end
 function scan_beta(nx::Int, ny::Int, Γ::Real)
     H = hamiltonian(TFIM(nx, ny; Γ=Γ, periodic=false))
     println("$nx x $ny TFIM for Γ = $Γ")
-    for β in 0:1:10
+
+    nbit = nx*ny
+    rang = 0:0.1:2
+    l = length(rang)
+    S = zeros(l, nbit-1)
+
+    for i in 1:l
+        β = rang[i]
         P = get_P_tensor(H, β)
-        S = get_entropy(P)
-        println("β = $β, entanglement entropy is $S")
+        s = get_entropy(P)
+        println("β = $β, entanglement entropy is $s ")
+        S[i,:] = s[:]
     end
+    pygui(:true)
+    gcf()
+    plot(rang, S)
+    plt.title("$nx x $ny TFIM for Γ = $Γ")
+    plt.xlabel("β")
+    plt.ylabel("entropy")
+
 end
 
 function scan_gamma(nx::Int, ny::Int, β::Real)
